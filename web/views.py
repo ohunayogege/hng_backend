@@ -31,8 +31,8 @@ class slackFirstTask(APIView):
             "current_day": day_name,
             "utc_time": current_lagos_time,
             "track": track,
-            "github_file_url": "",
-            "github_repo_url": "",
+            "github_file_url": "https://github.com/ohunayogege/hng_backend/blob/master/web/views.py",
+            "github_repo_url": "https://github.com/ohunayogege/hng_backend",
             "status_code": status.HTTP_200_OK
         }
         return Response(data, status=status.HTTP_200_OK)
