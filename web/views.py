@@ -11,6 +11,11 @@ class slackFirstTask(APIView):
         current_datetime = datetime.now()
         # Get the current UTC time
         current_utc_time = datetime.now(pytz.utc)
+
+        current_utc_time = datetime.now(pytz.utc)
+
+        # Format the UTC time in the desired format
+        formatted_utc_time = current_utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
         # For example, if you want to convert it to New York time:
         lagos_timezone = pytz.timezone('Africa/Lagos')
         current_lagos_time = current_utc_time.astimezone(lagos_timezone)
@@ -29,7 +34,7 @@ class slackFirstTask(APIView):
         data = {
             "slack_name": slack_name,
             "current_day": day_name,
-            "utc_time": current_lagos_time,
+            "utc_time": formatted_utc_time,
             "track": track,
             "github_file_url": "https://github.com/ohunayogege/hng_backend/blob/master/web/views.py",
             "github_repo_url": "https://github.com/ohunayogege/hng_backend",
