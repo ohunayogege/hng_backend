@@ -79,7 +79,7 @@ class CreatePerson(APIView):
             "created_on_date": user.added.date(),
             "create_on_time": user.added.time()
         }
-        return Response({"status": True, "message": "Person data added.", "data": data}, status=status.HTTP_201_CREATED)
+        return Response({"status": True, "message": "Person data added.", "data": data}, status=status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
         queryset = Person.objects.all()
