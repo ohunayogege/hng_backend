@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime
+from .models import Person
+from .serializers import PersonSerializer
 import pytz
 
 
@@ -41,3 +43,74 @@ class slackFirstTask(APIView):
             "status_code": status.HTTP_200_OK
         }
         return Response(data, status=status.HTTP_200_OK)
+
+
+# Let's Start the CRU Operation
+class CreatePerson(APIView):
+
+    def post(self, request):
+        name = request.data.get("name")
+        if not name:
+            return Response({"status": False, "message": "Name must not be empty."}, status=status.HTTP_400_BAD_REQUEST)
+        # Check if the 'name' field is a string
+        if not isinstance(name, str):
+            return Response({"status": False, "message": "Name must be a string."}, status=status.HTTP_400_BAD_REQUEST)
+        obj = Person.objects.create(name=name.title())
+        data = {
+            "user_id": obj.pk,
+            "name": obj.name,
+            "created_on_date": obj.added.date(),
+            "create_on_time": obj.added.time()
+        }
+        return Response({"status": True, "message": "Person data added.", "data": data}, status=status.HTTP_201_CREATED)
+
+    def get(self, request, pk):
+        if not pk:
+            return Response({"status": False, "message": "Please provide user_id you want to fetch."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        check_if_user_exists = Person.objects.filter(pk=pk).exists()
+        if not check_if_user_exists:
+            return Response({"status": False, "message": f"The user_id {pk} does not exists."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user = Person.objects.get(pk=pk)
+        data = {
+            "user_id": user.pk,
+            "name": user.name,
+            "created_on_date": user.added.date(),
+            "create_on_time": user.added.time()
+        }
+        return Response({"status": True, "message": "Person data added.", "data": data}, status=status.HTTP_200_OK)
+
+    def patch(self, request, *args, **kwargs):
+        queryset = Person.objects.all()
+        serializer_class = PersonSerializer
+        user_id = kwargs.get('pk')
+
+        # Check if the person exists
+        try:
+            person = Person.objects.get(pk=user_id)
+        except Person.DoesNotExist:
+            return Response({"status": False, "message": f"The user with user_id {user_id} does not exist."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        serializer = serializer_class(person, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": True, "message": f"Person with user_id {user_id} updated successfully."},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({"status": False, "message": "Invalid data provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+
+        try:
+            person = Person.objects.get(pk=user_id)
+        except Person.DoesNotExist:
+            return Response({"status": False, "message": f"The user with user_id {user_id} does not exist."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        person.delete()
+        return Response({"status": True, "message": f"Person with user_id {user_id} has been deleted successfully."},
+                        status=status.HTTP_204_NO_CONTENT)
